@@ -1,0 +1,109 @@
+\documentclass{article}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc}
+
+\lstset{
+basicstyle=\ttfamily\small,
+breaklines=true,
+frame=single,
+language=C,
+keywordstyle=\color{blue},
+commentstyle=\color{green!50!black},
+stringstyle=\color{red}
+}
+
+\begin{document}
+
+\title{Operating Systems Lab Assignment: Concurrency with Semaphores, Critical Sections, and Monitor Locks}
+\author{Your Name}
+\date{Sep 17, 2025}
+\maketitle
+
+\section{Introduction}
+This report documents the implementations and analyses for the concurrency lab assignment,
+covering Producer-Consumer in C, Bank Account in C++, and additional exercises on
+synchronization mechanisms.
+
+\section{Exercise 1: Producer-Consumer in C}
+\lstinputlisting{producer_consumer.c}
+
+\textbf{Explanation/Observation:}  
+The output shows that each produced item is eventually consumed in order, confirming that the producer and consumer correctly synchronize using semaphores and a mutex. The empty semaphore prevents the producer from overfilling the buffer, while the full semaphore ensures the consumer waits until items are available. The mutex guarantees that only one thread accesses the buffer at a time, avoiding data corruption. Together, these mechanisms maintain proper coordination and FIFO order between producer and consumer threads.
+
+\textbf{Screenshot:} Include a screenshot of compiling and running producer\_consumer.c.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{exercise1_screenshot.png}
+\caption{Compilation and execution of producer\_consumer.c}
+\end{figure}
+
+\section{Exercise 2: Bank Account Simulation in C++}
+\lstinputlisting[language=C++]{bank_account.cpp}
+
+\textbf{Explanation/Observation:}  
+In this program, a \texttt{std::mutex} ensures that only one thread modifies the shared balance at any time, preventing race conditions. The \texttt{std::condition\_variable} allows withdrawal threads to wait safely when the balance is insufficient. When a deposit occurs, the condition variable is notified, waking waiting threads to recheck the balance. This synchronization guarantees thread safety and ensures that withdrawals only occur when funds are available.
+
+\textbf{Screenshot:} Include a screenshot of compiling and running bank\_account.cpp.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{exercise2_screenshot.png}
+\caption{Compilation and execution of bank\_account.cpp}
+\end{figure}
+
+\section{Exercise 3: Reader-Writer Problem in C}
+\lstinputlisting{reader_writer.c}
+
+\textbf{Explanation/Observation:}  
+In this implementation of the Reader-Writer problem, semaphores ensure that multiple readers can access the shared resource simultaneously, but writers have exclusive access. The \texttt{mutex} semaphore protects the \texttt{reader\_count} variable, while \texttt{rw\_mutex} ensures mutual exclusion for writers and shared access for readers. This implementation follows a readers-first priority approach (if readers are active, writers must wait). Although this maximizes read concurrency, it may cause writer starvation if readers keep arriving continuously.
+
+\textbf{Screenshot:} Include a screenshot of compiling and running reader\_writer.c.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{exercise3_screenshot.png}
+\caption{Compilation and execution of reader\_writer.c}
+\end{figure}
+
+\section{Exercise 4: Dining Philosophers in C++}
+\lstinputlisting[language=C++]{dining_philosophers.cpp}
+
+\textbf{Explanation/Observation:}  
+In this implementation of the Dining Philosophers problem, each fork is protected by a \texttt{std::mutex}, ensuring that only one philosopher can hold it at a time. Deadlock is prevented using the resource hierarchy strategy: all philosophers pick up the lower-numbered fork first, except the last philosopher, who picks up the higher-numbered fork first. This breaks the circular wait condition, ensuring that no deadlock can occur. Since each philosopher releases forks after eating and waits before eating again, all philosophers eventually get a chance to eat, preventing starvation.
+
+\textbf{Screenshot:} Include a screenshot of compiling and running dining\_philosophers.cpp.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{exercise4_screenshot.png}
+\caption{Compilation and execution of dining\_philosophers.cpp}
+\end{figure}
+
+\section{Exercise 5: Sleeping Barber Problem in C}
+\lstinputlisting{sleeping_barber.c}
+
+\textbf{Explanation/Observation:}  
+The sleeping barber problem models synchronization between a barber (server) and customers (clients) using semaphores. There’s one barber, one barber chair, and a waiting room with a limited number of chairs. When no customers are present, the barber sleeps; when a customer arrives and finds the barber busy, they either wait (if a chair is available) or leave. The solution ensures proper synchronization — the barber only cuts hair when a customer is available, and customers only sit when a chair is free. This prevents both deadlock (barber waiting forever) and race conditions (multiple customers being served at once).
+
+\textbf{Screenshot:} Include a screenshot of compiling and running sleeping\_barber.c.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{exercise5_screenshot.png}
+\caption{Compilation and execution of sleeping\_barber.c}
+\end{figure}
+
+\section{Exercise 6: Bounded Buffer with Condition Variables in C++}
+\lstinputlisting[language=C++]{bounded_buffer.cpp}
+
+\textbf{Explanation/Observation:}  
+This exercise simulates producers generating data and consumers processing it, with a shared finite-sized buffer in between. Semaphores control when producers can insert items (only if there’s space) and when consumers can remove them (only if there’s something there). The simulation output shows alternating Produced and Consumed messages. Items are only consumed after being produced, and the buffer never overflows or underflows. If production runs faster, producers block until space is available, ensuring synchronization.
+
+\textbf{Screenshot:} Include a screenshot of compiling and running bounded\_buffer.cpp.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{exercise6_screenshot.png}
+\caption{Compilation and execution of bounded\_buffer.cpp}
+\end{figure}
+
+\end{document}
